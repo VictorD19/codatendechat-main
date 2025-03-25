@@ -35,6 +35,7 @@ import {
 } from "@material-ui/core";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ConfirmationModal from "../ConfirmationModal";
+import timeZones from "../../helpers/timeZones";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -99,6 +100,7 @@ const CampaignModal = ({
     message2: "",
     message3: "",
     message4: "",
+    timeZone: "",
     message5: "",
     status: "INATIVA", // INATIVA, PROGRAMADA, EM_ANDAMENTO, CANCELADA, FINALIZADA,
     scheduledAt: "",
@@ -167,7 +169,7 @@ const CampaignModal = ({
         .catch((error) => {
           console.error("Error retrieving tags:", error);
         });
-        
+
       if (!campaignId) return;
 
       api.get(`/campaigns/${campaignId}`).then(({ data }) => {
@@ -182,7 +184,7 @@ const CampaignModal = ({
             }
           });
 
-          return {...prevCampaignData, tagListId: data.tagId || "Nenhuma"};
+          return { ...prevCampaignData, tagListId: data.tagId || "Nenhuma" };
         });
       });
     }
@@ -485,7 +487,7 @@ const CampaignModal = ({
                     />
                   </Grid>
                   <Grid xs={12} md={4} item>
-                  <FormControl
+                    <FormControl
                       variant="outlined"
                       margin="dense"
                       className={classes.FormControl}
@@ -508,6 +510,31 @@ const CampaignModal = ({
                           </MenuItem>
                         ))}
                       </Field>
+                    </FormControl>
+                  </Grid>
+                  <Grid xs={12} md={4} item>
+                    <FormControl
+                      variant="outlined"
+                      className={classes.maxWidth}
+                      margin="dense"
+                      fullWidth
+                    >
+                      <>
+                        <InputLabel id="timezone-label">
+                          {i18n.t("userModal.form.timeZone")}
+                        </InputLabel>
+                        <Field
+                          as={Select}
+                          label={i18n.t("userModal.form.timeZone")}
+                          name="timeZone"
+                          labelId="timezone-label"
+                          id="timezone-selection"
+                          required
+                        >
+                          {timeZones.map((x, indx) => (
+                            <MenuItem value={x.value} key={indx + "_tz"}>{x.descricao}</MenuItem>
+                          ))}
+                        </Field></>
                     </FormControl>
                   </Grid>
                   <Grid xs={12} item>

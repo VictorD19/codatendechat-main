@@ -245,8 +245,7 @@ const Campaigns = () => {
       <ConfirmationModal
         title={
           deletingCampaign &&
-          `${i18n.t("campaigns.confirmationModal.deleteTitle")} ${
-            deletingCampaign.name
+          `${i18n.t("campaigns.confirmationModal.deleteTitle")} ${deletingCampaign.name
           }?`
         }
         open={confirmModalOpen}
@@ -353,12 +352,12 @@ const Campaigns = () => {
                   </TableCell>
                   <TableCell align="center">
                     {campaign.scheduledAt
-                      ? datetimeToClient(campaign.scheduledAt)
+                      ? datetimeToClient(campaign.scheduledAt, campaign.timeZone)
                       : i18n.t("campaigns.table.notScheduled")}
                   </TableCell>
                   <TableCell align="center">
                     {campaign.completedAt
-                      ? datetimeToClient(campaign.completedAt)
+                      ? datetimeToClient(campaign.completedAt,campaign.timeZone)
                       : i18n.t("campaigns.table.notConcluded")}
                   </TableCell>
                   <TableCell align="center">

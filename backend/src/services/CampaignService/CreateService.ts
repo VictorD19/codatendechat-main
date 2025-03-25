@@ -3,11 +3,13 @@ import AppError from "../../errors/AppError";
 import Campaign from "../../models/Campaign";
 import ContactList from "../../models/ContactList";
 import Whatsapp from "../../models/Whatsapp";
+import moment from "moment";
 
 interface Data {
   name: string;
   status: string;
   scheduledAt: string;
+  timeZone?: string;
   companyId: number;
   contactListId: number;
   tagId: number | null;
@@ -33,6 +35,8 @@ const CreateService = async (data: Data): Promise<Campaign> => {
   } catch (err: any) {
     throw new AppError(err.message);
   }
+  data.scheduledAt = moment.tz(data.scheduledAt, data.timeZone).utc().format('YYYY-MM-DD HH:mm:ss')
+
 
   if (data.scheduledAt != null && data.scheduledAt != "") {
     data.status = "PROGRAMADA";

@@ -8,7 +8,8 @@ import {
   AutoIncrement,
   ForeignKey,
   BelongsTo,
-  HasMany
+  HasMany,
+  DataType
 } from "sequelize-typescript";
 import CampaignShipping from "./CampaignShipping";
 import Company from "./Company";
@@ -52,6 +53,9 @@ class Campaign extends Model<Campaign> {
   mediaName: string;
 
   @Column
+  timeZone: string;
+
+  @Column(DataType.DATE)
   scheduledAt: Date;
 
   @Column

@@ -73,6 +73,7 @@
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^27.4.1",
     "@types/jsonwebtoken": "^8.5.8",
+    "@types/moment-timezone": "^0.5.13",
     "@types/multer": "^1.4.7",
     "@types/mustache": "^4.1.2",
     "@types/node": "^17.0.21",

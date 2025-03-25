@@ -302,20 +302,24 @@ async function handleVerifyCampaigns(job) {
 
   logger.info("[🏁] - Verificando campanhas...");
 
-  const campaigns: { id: number; scheduledAt: string }[] =
-    await sequelize.query(
-      `select id, "scheduledAt" from "Campaigns" c
-    where "scheduledAt" between now() and now() + '1 hour'::interval and status = 'PROGRAMADA'`,
-      { type: QueryTypes.SELECT }
-    );
+  const campaigns: { id: number; scheduledAt: string, timeZone: string }[] = await sequelize.query(
+    `SELECT id, "scheduledAt", "timeZone", "scheduledAt" ,timezone('UTC', now() + interval '1 hour') 
+          FROM "Campaigns" c
+          WHERE "scheduledAt" 
+                BETWEEN "scheduledAt"
+                AND timezone('UTC', now() + interval '1 hour') 
+                AND status = 'PROGRAMADA'`,
+    { type: QueryTypes.SELECT }
+  );
+
 
   if (campaigns.length > 0)
     logger.info(`[🚩] - Campanhas encontradas: ${campaigns.length}`);
 
   for (let campaign of campaigns) {
     try {
-      const now = moment();
-      const scheduledAt = moment(campaign.scheduledAt);
+      const now = moment.utc();
+      const scheduledAt = moment.tz(campaign.scheduledAt, campaign.timeZone);  // Convertendo para o fuso horário da campanha
       const delay = scheduledAt.diff(now, "milliseconds");
       logger.info(
         `[📌] - Campanha enviada para a fila de processamento: Campanha=${campaign.id}, Delay Inicial=${delay}`
@@ -549,7 +553,7 @@ async function handleProcessCampaign(job) {
         let baseDelay = campaign.scheduledAt;
 
         const queuePromises = [];
-        for (let i = 0; i < contactData.length; i++) {          
+        for (let i = 0; i < contactData.length; i++) {
 
           baseDelay = addSeconds(baseDelay, i > longerIntervalAfter ? greaterInterval : messageInterval);
 
@@ -573,7 +577,7 @@ async function handleProcessCampaign(job) {
 }
 
 async function handlePrepareContact(job) {
- 
+
   try {
     const { contactId, campaignId, delay, variables }: PrepareContactData =
       job.data;
@@ -617,7 +621,7 @@ async function handlePrepareContact(job) {
     }
 
     if (
-      record.deliveredAt === null 
+      record.deliveredAt === null
     ) {
       const nextJob = await campaignQueue.add(
         "DispatchCampaign",
@@ -691,7 +695,7 @@ async function handleDispatchCampaign(job) {
           const options = await getMessageOptions(file.path, path.resolve(folder, file.path), file.name);
           await wbot.sendMessage(chatId, { ...options });
 
-          logger.info("[🚩] - Enviou arquivo: "+ file.name +" | CampaignShippingId: " + campaignShippingId + " CampanhaID: " + campaignId);
+          logger.info("[🚩] - Enviou arquivo: " + file.name + " | CampaignShippingId: " + campaignShippingId + " CampanhaID: " + campaignId);
         };
       } catch (error) {
         logger.info(error);
@@ -700,7 +704,7 @@ async function handleDispatchCampaign(job) {
 
     if (campaign.mediaPath) {
 
-      logger.info("[🚩] - Preparando midia da campanha: "+ campaign.mediaPath +" | CampaignShippingId: " + campaignShippingId + " CampanhaID: " + campaignId);
+      logger.info("[🚩] - Preparando midia da campanha: " + campaign.mediaPath + " | CampaignShippingId: " + campaignShippingId + " CampanhaID: " + campaignId);
 
       const publicFolder = path.resolve(__dirname, "..", "public");
       const filePath = path.join(publicFolder, campaign.mediaPath);
@@ -858,7 +862,7 @@ export async function startQueueProcess() {
   campaignQueue.process("PrepareContact", 1, handlePrepareContact);
 
   campaignQueue.process("DispatchCampaign", 1, handleDispatchCampaign);
-  
+
 
   //queueMonitor.process("VerifyQueueStatus", handleVerifyQueue);
 
@@ -866,7 +870,7 @@ export async function startQueueProcess() {
     try {
       await campaignQueue.clean(12 * 3600 * 1000, 'completed');
       await campaignQueue.clean(24 * 3600 * 1000, 'failed');
-      
+
       const jobs = await campaignQueue.getJobs(['waiting', 'active']);
       for (const job of jobs) {
         if (Date.now() - job.timestamp > 24 * 3600 * 1000) {
@@ -882,7 +886,7 @@ export async function startQueueProcess() {
   setInterval(async () => {
     const jobCounts = await campaignQueue.getJobCounts();
     const memoryUsage = process.memoryUsage();
-    
+
     logger.info('[📌] - Status da fila de campanhas:', {
       jobs: jobCounts,
       memory: {

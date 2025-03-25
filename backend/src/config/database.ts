@@ -6,15 +6,18 @@ module.exports = {
     collate: "utf8mb4_bin",
   },
   dialect: process.env.DB_DIALECT || "mysql",
-  timezone: "-03:00",
+  timezone: "UTC",
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 3306,
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
-  logging: process.env.DB_DEBUG === "true" 
-    ? (msg) => console.log(`[Sequelize] ${new Date().toISOString()}: ${msg}`) 
+  logging: process.env.DB_DEBUG === "true"
+    ? (msg) => console.log(`[Sequelize] ${new Date().toISOString()}: ${msg}`)
     : false,
+  dialectOptions: {
+    useUTC: true,
+  },
   pool: {
     max: 20,
     min: 1,

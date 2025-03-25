@@ -76,7 +76,7 @@ const CampaignReport = () => {
 
       if (has(campaign, "shipping")) {
         const contacts = get(campaign, "shipping");
-        if(!contacts) return;
+        if (!contacts) return;
         const delivered = contacts.filter((c) => !isNull(c.deliveredAt));
         setDelivered(delivered.length);
       }
@@ -92,7 +92,7 @@ const CampaignReport = () => {
     const socket = socketManager.getSocket(companyId);
 
     socket.on(`company-${companyId}-campaign`, (data) => {
-     
+
       if (data.record.id === +campaignId) {
         setCampaign(data.record);
 
@@ -195,7 +195,7 @@ const CampaignReport = () => {
             <CardCounter
               icon={<ScheduleIcon fontSize="inherit" />}
               title={i18n.t("campaigns.report.schedule")}
-              value={datetimeToClient(campaign.scheduledAt)}
+              value={datetimeToClient(campaign.scheduledAt, campaign.timeZone)}
               loading={loading}
             />
           </Grid>
@@ -203,7 +203,7 @@ const CampaignReport = () => {
             <CardCounter
               icon={<EventAvailableIcon fontSize="inherit" />}
               title={i18n.t("campaigns.report.conclusion")}
-              value={datetimeToClient(campaign.completedAt)}
+              value={datetimeToClient(campaign.completedAt, campaign.timeZone)}
               loading={loading}
             />
           </Grid>
