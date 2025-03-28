@@ -303,43 +303,45 @@ async function handleVerifyCampaigns(job) {
   logger.info("[🏁] - Verificando campanhas...");
 
   const campaigns: { id: number; scheduledAt: string, timeZone: string }[] = await sequelize.query(
-    `SELECT id, "scheduledAt", "timeZone", "scheduledAt" ,timezone('UTC', now() + interval '1 hour') 
-          FROM "Campaigns" c
-          WHERE "scheduledAt" 
-                BETWEEN "scheduledAt"
-                AND timezone('UTC', now() + interval '1 hour') 
-                AND status = 'PROGRAMADA'`,
+    `SELECT id, "scheduledAt", "timeZone"
+      FROM "Campaigns"
+      WHERE timezone('UTC', "scheduledAt" AT TIME ZONE "timeZone") 
+            BETWEEN timezone('UTC', now()) 
+            AND timezone('UTC', now() + interval '1 hour')
+            AND status = 'PROGRAMADA'`,
     { type: QueryTypes.SELECT }
   );
 
+  console.log(campaigns,"Encontradas")
 
   if (campaigns.length > 0)
     logger.info(`[🚩] - Campanhas encontradas: ${campaigns.length}`);
-
   for (let campaign of campaigns) {
     try {
-      const now = moment.utc();
-      const scheduledAt = moment.tz(campaign.scheduledAt, campaign.timeZone);  // Convertendo para o fuso horário da campanha
-      const delay = scheduledAt.diff(now, "milliseconds");
+      const nowUtc = moment.utc();
+  
+      // 🔹 Converte a data para UTC corretamente usando o timeZone salvo no banco
+      const scheduledAtUtc = moment.tz(campaign.scheduledAt, campaign.timeZone).utc();
+  
+      // 🔹 Calcula o atraso (delay) em milissegundos
+      const delay = scheduledAtUtc.diff(nowUtc, "milliseconds");
+  
       logger.info(
-        `[📌] - Campanha enviada para a fila de processamento: Campanha=${campaign.id}, Delay Inicial=${delay}`
+        `[📌] - Campanha enviada para a fila: Campanha=${campaign.id}, Delay=${delay}ms`
       );
+  
       campaignQueue.add(
         "ProcessCampaign",
+        { id: campaign.id },
         {
-          id: campaign.id,
-          delay
-        },
-        {
-          removeOnComplete: true
+          delay: Math.max(0, delay), // 🔹 Evita valores negativos
+          removeOnComplete: true,
         }
       );
     } catch (err: any) {
-      Sentry.captureException(err);
+      logger.error(`[❌] - Erro ao processar campanha ${campaign.id}`, err);
     }
   }
-
-  logger.info("[🏁] - Finalizando verificação de campanhas programadas...");
 }
 
 async function getCampaign(id) {

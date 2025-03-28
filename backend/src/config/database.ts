@@ -17,6 +17,13 @@ module.exports = {
     : false,
   dialectOptions: {
     useUTC: true,
+    dateStrings: true,
+    typeCast: function (field, next) { // 🔹 Garante que timestamps são tratados corretamente
+      if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
+        return field.string();
+      }
+      return next();
+    },
   },
   pool: {
     max: 20,
