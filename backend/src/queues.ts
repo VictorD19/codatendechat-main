@@ -305,13 +305,12 @@ async function handleVerifyCampaigns(job) {
   const campaigns: { id: number; scheduledAt: string, timeZone: string }[] = await sequelize.query(
     `SELECT id, "scheduledAt", "timeZone"
       FROM "Campaigns"
-      WHERE timezone('UTC', "scheduledAt" AT TIME ZONE "timeZone") 
-            BETWEEN timezone('UTC', now()) 
-            AND timezone('UTC', now() + interval '1 hour')
+      WHERE "scheduledAt" 
+            BETWEEN now() 
+            AND now() + interval '1 hour'
             AND status = 'PROGRAMADA'`,
     { type: QueryTypes.SELECT }
   );
-
   console.log(campaigns,"Encontradas")
 
   if (campaigns.length > 0)
@@ -319,17 +318,14 @@ async function handleVerifyCampaigns(job) {
   for (let campaign of campaigns) {
     try {
       const nowUtc = moment.utc();
-  
-      // 🔹 Converte a data para UTC corretamente usando o timeZone salvo no banco
-      const scheduledAtUtc = moment.tz(campaign.scheduledAt, campaign.timeZone).utc();
-  
-      // 🔹 Calcula o atraso (delay) em milissegundos
+      const scheduledAtUtc = moment.utc(campaign.scheduledAt); // Já está em UTC
+      
       const delay = scheduledAtUtc.diff(nowUtc, "milliseconds");
-  
+      
       logger.info(
         `[📌] - Campanha enviada para a fila: Campanha=${campaign.id}, Delay=${delay}ms`
       );
-  
+      
       campaignQueue.add(
         "ProcessCampaign",
         { id: campaign.id },
