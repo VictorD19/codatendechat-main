@@ -16,14 +16,7 @@ module.exports = {
     ? (msg) => console.log(`[Sequelize] ${new Date().toISOString()}: ${msg}`)
     : false,
   dialectOptions: {
-    useUTC: true,
-    dateStrings: true,
-    typeCast: function (field, next) { // 🔹 Garante que timestamps são tratados corretamente
-      if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
-        return field.string();
-      }
-      return next();
-    },
+    useUTC: true
   },
   pool: {
     max: 20,
