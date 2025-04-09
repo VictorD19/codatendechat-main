@@ -195,7 +195,7 @@ const CampaignReport = () => {
             <CardCounter
               icon={<ScheduleIcon fontSize="inherit" />}
               title={i18n.t("campaigns.report.schedule")}
-              value={datetimeToClient(campaign.scheduledAt, campaign.timeZone)}
+              value={datetimeToClient(campaign.scheduledAt)}
               loading={loading}
             />
           </Grid>
@@ -203,7 +203,7 @@ const CampaignReport = () => {
             <CardCounter
               icon={<EventAvailableIcon fontSize="inherit" />}
               title={i18n.t("campaigns.report.conclusion")}
-              value={datetimeToClient(campaign.completedAt, campaign.timeZone)}
+              value={datetimeToClient(campaign.completedAt)}
               loading={loading}
             />
           </Grid>

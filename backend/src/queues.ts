@@ -319,9 +319,8 @@ async function handleVerifyCampaigns(job) {
     try {
       const nowUtc = moment.utc();
       const scheduledAtUtc = moment.utc(campaign.scheduledAt); // Já está em UTC
-      
       const delay = scheduledAtUtc.diff(nowUtc, "milliseconds");
-      
+ 
       logger.info(
         `[📌] - Campanha enviada para a fila: Campanha=${campaign.id}, Delay=${delay}ms`
       );

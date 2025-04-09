@@ -1,31 +1,17 @@
 import moment from "moment-timezone";
 
 export function useDate() {
-  function dateToClient(strDate, timeZone) {
-    if (timeZone) {
-      if (moment.utc(strDate).isValid()) {
-        return moment.utc(strDate).tz(timeZone).format("DD/MM/YYYY HH:mm");
-      }
-      return strDate
-    }
-
+  function dateToClient(strDate) {
     if (moment(strDate).isValid()) {
       return moment(strDate).format("DD/MM/YYYY");
     }
     return strDate;
   }
 
-  function datetimeToClient(strDate, timeZone) {
-    if (timeZone) {
-      debugger;
-      if (moment.utc(strDate).isValid()) {
-        return moment.utc(strDate).tz(timeZone).format("DD/MM/YYYY HH:mm");
-      }
-      return strDate;
-    }
+  function datetimeToClient(strDate) {
 
     if (moment(strDate).isValid()) {
-      return moment.format("DD/MM/YYYY HH:mm");
+      return moment(strDate).format("DD/MM/YYYY HH:mm");
     }
     return strDate;
   }

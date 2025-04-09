@@ -36,9 +36,7 @@ const CreateService = async (data: Data): Promise<Campaign> => {
     throw new AppError(err.message);
   }
   let dataInicial = moment.tz(data.scheduledAt,data.timeZone);
-
   data.scheduledAt = dataInicial.utc().format("YYYY-MM-DD HH:mm:ss")
-  
   if (data.scheduledAt != null && data.scheduledAt != "") {
     data.status = "PROGRAMADA";
   }

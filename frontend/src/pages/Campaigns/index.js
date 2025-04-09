@@ -352,12 +352,12 @@ const Campaigns = () => {
                   </TableCell>
                   <TableCell align="center">
                     {campaign.scheduledAt
-                      ? datetimeToClient(campaign.scheduledAt, campaign.timeZone)
+                      ? datetimeToClient(campaign.scheduledAt)
                       : i18n.t("campaigns.table.notScheduled")}
                   </TableCell>
                   <TableCell align="center">
                     {campaign.completedAt
-                      ? datetimeToClient(campaign.completedAt,campaign.timeZone)
+                      ? datetimeToClient(campaign.completedAt)
                       : i18n.t("campaigns.table.notConcluded")}
                   </TableCell>
                   <TableCell align="center">
