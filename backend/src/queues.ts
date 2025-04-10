@@ -217,31 +217,51 @@ async function handleCloseTicketsAutomatic() {
   job.start()
 }
 
+interface ScheduleResult {
+  id: number;
+  body: string;
+  number: string;
+  sendAt: string;
+  sentAt: string | null;
+  contactId: number;
+  ticketId: number;
+  userId: number;
+  companyId: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  mediaPath: string | null;
+  mediaName: string | null;
+  contactName: string;
+}
+
 async function handleVerifySchedules(job) {
   try {
-    const { count, rows: schedules } = await Schedule.findAndCountAll({
-      where: {
-        status: "PENDENTE",
-        sentAt: null,
-        sendAt: {
-          [Op.gte]: moment().format("YYYY-MM-DD HH:mm:ss"),
-          [Op.lte]: moment().add("30", "seconds").format("YYYY-MM-DD HH:mm:ss")
-        }
-      },
-      include: [{ model: Contact, as: "contact" }]
-    });
-    if (count > 0) {
-      schedules.map(async schedule => {
-        await schedule.update({
-          status: "AGENDADA"
-        });
-        sendScheduledMessages.add(
-          "SendMessage",
-          { schedule },
-          { delay: 40000 }
-        );
-        logger.info(`Disparo agendado para: ${schedule.contact.name}`);
+    const [results] = await sequelize.query(`
+      SELECT s.*, c.name AS "contactName" ,c.number as "number"
+      FROM "Schedules" s
+      INNER JOIN "Contacts" c ON s."contactId" = c.id
+      WHERE s.status = 'PENDENTE'
+        AND s."sentAt" IS NULL
+        AND s."sendAt" BETWEEN NOW() AND NOW() + INTERVAL '30 seconds'
+    `);
+
+    const schedules = results as ScheduleResult[];
+    for (const schedule of schedules) {
+      await sequelize.query(`
+        UPDATE "Schedules"
+        SET status = 'AGENDADA'
+        WHERE id = :id
+      `, {
+        replacements: { id: schedule.id }
       });
+      sendScheduledMessages.add(
+        "SendMessage",
+        { schedule },
+        { delay: 40000 }
+      );
+
+      logger.info(`Disparo agendado para: ${schedule.contactName}`);
     }
   } catch (e: any) {
     Sentry.captureException(e);
@@ -255,7 +275,6 @@ async function handleSendScheduledMessage(job) {
     data: { schedule }
   } = job;
   let scheduleRecord: Schedule | null = null;
-
   try {
     scheduleRecord = await Schedule.findByPk(schedule.id);
   } catch (e) {
@@ -270,21 +289,26 @@ async function handleSendScheduledMessage(job) {
     if (schedule.mediaPath) {
       filePath = path.resolve("public", schedule.mediaPath);
     }
-
     await SendMessage(whatsapp, {
-      number: schedule.contact.number,
-      body: formatBody(schedule.body, schedule.contact),
+      number: schedule.number,
+      body: formatBody(schedule.body, {
+        name: schedule.contactName,
+      } as Contact),
       mediaPath: filePath
     });
 
     await scheduleRecord?.update({
-      sentAt: moment().format("YYYY-MM-DD HH:mm"),
+      sentAt: moment().utc().format("YYYY-MM-DD HH:mm"),
       status: "ENVIADA"
     });
 
-    logger.info(`Mensagem agendada enviada para: ${schedule.contact.name}`);
+    logger.info(`Mensagem agendada enviada para: ${schedule.contactName}`);
     sendScheduledMessages.clean(15000, "completed");
   } catch (e: any) {
+    console.log("------------------------------Errorrrrrrrrrrrrrrrrrrrrrrrr-------------------")
+    console.log("--------------------------------------------------------------------")
+    console.log("--------------------------------------------------------------------")
+    console.log(e)
     Sentry.captureException(e);
     await scheduleRecord?.update({
       status: "ERRO"
@@ -311,7 +335,6 @@ async function handleVerifyCampaigns(job) {
             AND status = 'PROGRAMADA'`,
     { type: QueryTypes.SELECT }
   );
-  console.log(campaigns,"Encontradas")
 
   if (campaigns.length > 0)
     logger.info(`[🚩] - Campanhas encontradas: ${campaigns.length}`);
@@ -320,11 +343,11 @@ async function handleVerifyCampaigns(job) {
       const nowUtc = moment.utc();
       const scheduledAtUtc = moment.utc(campaign.scheduledAt); // Já está em UTC
       const delay = scheduledAtUtc.diff(nowUtc, "milliseconds");
- 
+
       logger.info(
         `[📌] - Campanha enviada para a fila: Campanha=${campaign.id}, Delay=${delay}ms`
       );
-      
+
       campaignQueue.add(
         "ProcessCampaign",
         { id: campaign.id },

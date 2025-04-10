@@ -2,6 +2,7 @@ import * as Yup from "yup";
 
 import AppError from "../../errors/AppError";
 import Schedule from "../../models/Schedule";
+import moment from "moment-timezone";
 
 interface Request {
   body: string;
@@ -9,6 +10,7 @@ interface Request {
   contactId: number | string;
   companyId: number | string;
   userId?: number | string;
+  timeZone?: string
 }
 
 const CreateService = async ({
@@ -16,7 +18,8 @@ const CreateService = async ({
   sendAt,
   contactId,
   companyId,
-  userId
+  userId,
+  timeZone
 }: Request): Promise<Schedule> => {
   const schema = Yup.object().shape({
     body: Yup.string().required().min(5),
@@ -28,6 +31,9 @@ const CreateService = async ({
   } catch (err: any) {
     throw new AppError(err.message);
   }
+
+  let dataInicial = moment.tz(sendAt, timeZone);
+  sendAt = dataInicial.utc().format("YYYY-MM-DD HH:mm:ss")
 
   const schedule = await Schedule.create(
     {

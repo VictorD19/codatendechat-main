@@ -19,9 +19,10 @@ import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
-import { FormControl, Grid, IconButton } from "@material-ui/core";
+import { FormControl, Grid, IconButton, InputLabel, MenuItem, Select } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import moment from "moment"
+
+import moment from "moment-timezone"
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { isArray, capitalize } from "lodash";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
@@ -29,6 +30,7 @@ import AttachFile from "@material-ui/icons/AttachFile";
 import { head } from "lodash";
 import ConfirmationModal from "../ConfirmationModal";
 import MessageVariablesPicker from "../MessageVariablesPicker";
+import timeZones from "../../helpers/timeZones";
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -76,7 +78,8 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 	const initialState = {
 		body: "",
 		contactId: "",
-		sendAt: moment().add(1, 'hour').format('YYYY-MM-DDTHH:mm'),
+		timeZone: user.timeZone || "UTC",
+		sendAt: moment.tz(user.timeZone || "UTC").format('YYYY-MM-DDTHH:mm'),
 		sentAt: ""
 	};
 
@@ -122,7 +125,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 
 					const { data } = await api.get(`/schedules/${scheduleId}`);
 					setSchedule(prevState => {
-						return { ...prevState, ...data, sendAt: moment(data.sendAt).format('YYYY-MM-DDTHH:mm') };
+						return { ...prevState, ...data, sendAt: moment.tz(data.sendAt,user.timeZone || "UTC").format('YYYY-MM-DDTHH:mm') };
 					});
 					setCurrentContact(data.contact);
 				})()
@@ -149,7 +152,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 		const scheduleData = { ...values, userId: user.id };
 		try {
 			if (scheduleId) {
-				await api.put(`/schedules/${scheduleId}`, scheduleData);
+				await api.put(`/schedules/${scheduleId}`, { ...scheduleData, status: "PENDENTE", sendAt: moment.tz(scheduleData.sendAt, scheduleData.timeZone).utc().format() });
 				if (attachment != null) {
 					const formData = new FormData();
 					formData.append("file", attachment);
@@ -318,6 +321,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 										fullWidth
 									/>
 								</div>
+								<br />
 								{(schedule.mediaPath || attachment) && (
 									<Grid xs={12} item>
 										<Button startIcon={<AttachFile />}>

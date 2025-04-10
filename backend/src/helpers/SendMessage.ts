@@ -17,10 +17,11 @@ export const SendMessage = async (
 ): Promise<any> => {
   try {
     const wbot = await GetWhatsappWbot(whatsapp);
+    console.log(messageData.number,"Numero enviar")
     const chatId = `${messageData.number}@s.whatsapp.net`;
-
+    console.log("Inciando envio")
     let message;
-
+    
     if (messageData.mediaPath) {
       const options = await getMessageOptions(
         messageData.fileName,
@@ -37,7 +38,8 @@ export const SendMessage = async (
       const body = `\u200e ${messageData.body}`;
       message = await wbot.sendMessage(chatId, { text: body });
     }
-
+    
+    console.log("Enviado")
     return message;
   } catch (err: any) {
     throw new Error(err);
