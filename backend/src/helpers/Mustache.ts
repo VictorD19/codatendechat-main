@@ -1,6 +1,7 @@
 import Mustache from "mustache";
 import Contact from "../models/Contact";
 import moment from "moment-timezone";
+import { salvarLog } from "../queues";
 
 export const greeting = (): string => {
   const greetings = ["Boa madrugada", "Bom dia", "Boa tarde", "Boa noite"];
@@ -19,7 +20,7 @@ export const firstName = (contact?: Contact): string => {
 
 export default (body: string, contact: Contact, timeZone?: ""): string => {
   let ms = "";
-  
+  salvarLog("iNCIAO MONTAGEM HORA")
   const m = timeZone ? moment.tz(timeZone) : moment();
   const dd = m.format("DD");
   const mm = m.format("MM");
@@ -44,7 +45,6 @@ export default (body: string, contact: Contact, timeZone?: ""): string => {
   const protocol = yy + mm + dd + String(hh) + min + ss;
 
   const hora = `${hh}:${min}:${ss}`;
-
   const view = {
     firstName: firstName(contact),
     name: contact ? contact.name : "",
@@ -53,5 +53,6 @@ export default (body: string, contact: Contact, timeZone?: ""): string => {
     protocol,
     hora
   };
+  salvarLog("FIM" + JSON.stringify(view))
   return Mustache.render(body, view);
 };

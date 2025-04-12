@@ -19,6 +19,7 @@ import sequelize from "./database";
 import { getMessageOptions } from "./services/WbotServices/SendWhatsAppMedia";
 import { getIO } from "./libs/socket";
 import path from "path";
+import fs from "fs";
 import User from "./models/User";
 import Company from "./models/Company";
 import Plan from "./models/Plan";
@@ -29,6 +30,21 @@ import { addSeconds, differenceInSeconds } from "date-fns";
 import formatBody from "./helpers/Mustache";
 import { ClosedAllOpenTickets } from "./services/WbotServices/wbotClosedTickets";
 
+// Escreve a linha de log
+
+export function salvarLog(mensagem, nomeArquivo = 'log.txt') {
+  const caminho = path.join(__dirname, nomeArquivo);
+  const linha = `[${new Date().toISOString()}] ${mensagem}\n`;
+
+  // Usa appendFile, que cria o arquivo se ele não existir
+  fs.appendFile(caminho, linha, (err) => {
+    if (err) {
+      console.error('Erro ao salvar o log:', err);
+    } else {
+      console.log('Log salvo com sucesso.');
+    }
+  });
+}
 
 const nodemailer = require('nodemailer');
 const CronJob = require('cron').CronJob;
@@ -291,7 +307,7 @@ async function handleSendScheduledMessage(job) {
     if (schedule.mediaPath) {
       filePath = path.resolve("public", schedule.mediaPath);
     }
-    console.log(schedule,"Shedule encotnrado")
+    salvarLog(JSON.stringify(schedule) + "SHELLL ENCONTRADOA")
     await SendMessage(whatsapp, {
       number: schedule.number,
       body: formatBody(schedule.body, {
@@ -304,7 +320,7 @@ async function handleSendScheduledMessage(job) {
       sentAt: moment().utc().format("YYYY-MM-DD HH:mm"),
       status: "ENVIADA"
     });
-
+    salvarLog(`Mensagem agendada enviada para: ${schedule.contactName}`)
     logger.info(`Mensagem agendada enviada para: ${schedule.contactName}`);
     sendScheduledMessages.clean(15000, "completed");
   } catch (e: any) {
@@ -313,6 +329,7 @@ async function handleSendScheduledMessage(job) {
     console.log("--------------------------------------------------------------------")
     console.log(e)
     Sentry.captureException(e);
+    salvarLog("erooo" + e.message)
     await scheduleRecord?.update({
       status: "ERRO"
     });
