@@ -221,6 +221,7 @@ interface ScheduleResult {
   id: number;
   body: string;
   number: string;
+  timeZone: string;
   sendAt: string;
   sentAt: string | null;
   contactId: number;
@@ -238,9 +239,10 @@ interface ScheduleResult {
 async function handleVerifySchedules(job) {
   try {
     const [results] = await sequelize.query(`
-      SELECT s.*, c.name AS "contactName" ,c.number as "number"
+      SELECT s.*, c.name AS "contactName",_user."timeZone" as "timeZone" ,c.number as "number"
       FROM "Schedules" s
       INNER JOIN "Contacts" c ON s."contactId" = c.id
+      join "Users" as "_user" on "_user"."id" = s."userId"
       WHERE s.status = 'PENDENTE'
         AND s."sentAt" IS NULL
         AND s."sendAt" BETWEEN NOW() AND NOW() + INTERVAL '30 seconds'
@@ -289,11 +291,12 @@ async function handleSendScheduledMessage(job) {
     if (schedule.mediaPath) {
       filePath = path.resolve("public", schedule.mediaPath);
     }
+    console.log(schedule,"Shedule encotnrado")
     await SendMessage(whatsapp, {
       number: schedule.number,
       body: formatBody(schedule.body, {
         name: schedule.contactName,
-      } as Contact),
+      } as Contact, schedule.timeZone),
       mediaPath: filePath
     });
 

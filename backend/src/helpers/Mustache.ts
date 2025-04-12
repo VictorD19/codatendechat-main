@@ -1,5 +1,6 @@
 import Mustache from "mustache";
 import Contact from "../models/Contact";
+import moment from "moment-timezone";
 
 export const greeting = (): string => {
   const greetings = ["Boa madrugada", "Bom dia", "Boa tarde", "Boa noite"];
@@ -16,28 +17,27 @@ export const firstName = (contact?: Contact): string => {
   return '';
 };
 
-export default (body: string, contact: Contact): string => {
+export default (body: string, contact: Contact, timeZone?: ""): string => {
   let ms = "";
-
-  const Hr = new Date();
-
-  const dd: string = `0${Hr.getDate()}`.slice(-2);
-  const mm: string = `0${Hr.getMonth() + 1}`.slice(-2);
-  const yy: string = Hr.getFullYear().toString();
-  const hh: number = Hr.getHours();
-  const min: string = `0${Hr.getMinutes()}`.slice(-2);
-  const ss: string = `0${Hr.getSeconds()}`.slice(-2);
-
-  if (hh >= 6) {
+  
+  const m = timeZone ? moment.tz(timeZone) : moment();
+  const dd = m.format("DD");
+  const mm = m.format("MM");
+  const yy = m.format("YYYY");
+  const hh = m.format("HH");
+  const min = m.format("mm");
+  const ss = m.format("ss");
+  let horaNumerica = parseInt(hh)
+  if (horaNumerica >= 6) {
     ms = "Bom dia";
   }
-  if (hh > 11) {
+  if (horaNumerica > 11) {
     ms = "Boa tarde";
   }
-  if (hh > 17) {
+  if (horaNumerica > 17) {
     ms = "Boa noite";
   }
-  if (hh > 23 || hh < 6) {
+  if (horaNumerica > 23 || horaNumerica < 6) {
     ms = "Boa madrugada";
   }
 

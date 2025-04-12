@@ -61,14 +61,15 @@ const wbotMonitor = async (
           });
 
           const number = node.attrs.from.replace(/\D/g, "");
-
+        
           const contact = await Contact.findOne({
             where: { companyId, number },
           });
 
+         
           const ticket = await Ticket.findOne({
             where: {
-              contactId: contact.id,
+              contactId: contact?.id ?? 0,
               whatsappId: wbot.id,
               //status: { [Op.or]: ["close"] },
               companyId
