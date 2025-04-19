@@ -83,24 +83,6 @@ services:
       timeout: 5s
       retries: 5
 
-  db_migrate:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.sqlsetup
-    environment:
-      - DB_DIALECT=${DB_DIALECT}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_DEBUG=${DB_DEBUG}
-    networks:
-      - app_network
-    depends_on:
-      db_postgres:
-        condition: service_healthy
-
   nginx:
     image: nginx:latest
     restart: always
