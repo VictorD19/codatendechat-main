@@ -1,19 +1,19 @@
-FROM node:23-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN apk add --no-cache git tzdata
-
-ENV TZ=UTC
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN npm install
 
 COPY . .
 
 RUN npm run build
+
+RUN apk add --no-cache git tzdata
+
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 EXPOSE 8080
 
