@@ -7,8 +7,8 @@ services:
       - html:/var/www/html
     entrypoint: >
       sh -c "certbot certonly --webroot -w /var/www/html 
-      --agree-tos --email adm@sotemtec.com 
-      -d app.guisalezze.com --non-interactive && 
+      --agree-tos --email fightmosquito@gmail.com 
+      -d sistemazapchat.com --non-interactive && 
       nginx -s reload"
 
 volumes:
