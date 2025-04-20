@@ -11,6 +11,10 @@ services:
       -d sistemazapchat.com --non-interactive && 
       nginx -s reload"
 
+networks:
+  app_network:
+    external: true
+    
 volumes:
   certs:
   html:
