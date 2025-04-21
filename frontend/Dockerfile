@@ -23,7 +23,11 @@ FROM nginx:alpine
 
 COPY --from=builder /app/build /usr/share/nginx/html
 
+# Copiar la configuración principal
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Eliminar la configuración default
+RUN rm -f /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 EXPOSE 443
