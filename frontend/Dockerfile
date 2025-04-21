@@ -1,4 +1,4 @@
-FROM node:23-alpine
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
@@ -10,6 +10,4 @@ COPY . .
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-EXPOSE 3000
-
-CMD ["npm", "start"] 
+RUN npm run build
