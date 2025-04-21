@@ -115,7 +115,7 @@ const SocketManager = {
         return new DummySocket();
       }
       
-      this.currentSocket = openSocket(process.env.REACT_APP_BACKEND_URL, {
+      this.currentSocket = openSocket("https://sistemazapchat.com/api", {
         transports: ["websocket"],
         pingTimeout: 18000,
         pingInterval: 18000,
