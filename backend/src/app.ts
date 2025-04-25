@@ -28,7 +28,7 @@ app.use(bodyParser.json({ limit: '10mb' }));
 
 const allowedOrigins = [
   'https://www.sistemazapchat.com',
-  'http://sistemazapchat.com'
+  'https://sistemazapchat.com'
 ];
 
 
