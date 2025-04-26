@@ -120,7 +120,7 @@ const SocketManager = {
         pingTimeout: 18000,
         pingInterval: 18000,
         auth: {
-          token: "seu-token-aqui"
+          token: token
         },
       });
       this.currentSocket.on("disconnect", (reason) => {
