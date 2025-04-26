@@ -20,7 +20,7 @@ export const initIO = (httpServer: Server): SocketIO => {
 
   io.on("connection", async socket => {
     logger.info("Client Connected");
-    const { token } = socket.handshake.query;
+    const token = socket.handshake.auth.token;
     let tokenData = null;
     try {
       tokenData = verify(token as string, authConfig.secret);
