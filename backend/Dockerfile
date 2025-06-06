@@ -1,9 +1,11 @@
-FROM node:20-alpine
+FROM node:23-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
 RUN apk add --no-cache git tzdata
+
+RUN npm install -g npm@latest
 
 RUN npm install
 
