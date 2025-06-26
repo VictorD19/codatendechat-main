@@ -19,11 +19,11 @@ module.exports = {
     useUTC: true
   },
   pool: {
-    max: 20,
+    max: 5,
     min: 1,
     acquire: 0,
     idle: 30000,
-    evict: 1000 * 60 * 5,
+    evict: 10000,
   },
   retry: {
     max: 3,
