@@ -96,7 +96,11 @@ const PromptModal = ({ open, onClose, promptId, refreshPrompts }) => {
                 return;
             }
             try {
+                debugger;
                 const { data } = await api.get(`/prompt/${promptId}`);
+                if(!data.queueId)
+                    data.queueId = 0;
+                
                 setPrompt(prevState => {
                     return { ...prevState, ...data };
                 });
