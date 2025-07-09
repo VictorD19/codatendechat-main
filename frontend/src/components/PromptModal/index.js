@@ -122,11 +122,7 @@ const PromptModal = ({ open, onClose, promptId, refreshPrompts }) => {
 
     const handleSavePrompt = async values => {
         const promptData = { ...values, model: selectedModel };
-        console.log(promptData);
-        if (!values.queueId) {
-            toastError(i18n.t("promptModal.setor"));
-            return;
-        }
+        console.log(promptData,"ENVIANDO...");
         try {
             if (promptId) {
                 await api.put(`/prompt/${promptId}`, promptData);
