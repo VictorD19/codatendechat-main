@@ -21,6 +21,9 @@ interface PromptData {
 const CreatePromptService = async (promptData: PromptData): Promise<Prompt> => {
     const { name, apiKey, prompt, queueId,maxMessages,companyId } = promptData;
 
+    if(!queueId)
+        queueId = 0;
+
     const promptSchema = Yup.object().shape({
         name: Yup.string().required("ERR_PROMPT_NAME_INVALID"),
         prompt: Yup.string().required("ERR_PROMPT_INTELLIGENCE_INVALID"),

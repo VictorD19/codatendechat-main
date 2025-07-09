@@ -83,7 +83,7 @@ const PromptModal = ({ open, onClose, promptId, refreshPrompts }) => {
         maxTokens: 100,
         temperature: 1,
         apiKey: "",
-        queueId: '',
+        queueId: 0,
         maxMessages: 10
     };
 
