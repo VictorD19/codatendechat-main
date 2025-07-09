@@ -19,7 +19,7 @@ interface PromptData {
 }
 
 const CreatePromptService = async (promptData: PromptData): Promise<Prompt> => {
-    const { name, apiKey, prompt, queueId,maxMessages,companyId } = promptData;
+    let { name, apiKey, prompt, queueId,maxMessages,companyId } = promptData;
 
     if(!queueId)
         queueId = 0;
