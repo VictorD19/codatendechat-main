@@ -31,7 +31,7 @@ const CreatePromptService = async (promptData: PromptData): Promise<Prompt> => {
     });
 
     try {
-        await promptSchema.validate({ name, apiKey, prompt, queueId ?? 0  ,maxMessages,companyId });
+        await promptSchema.validate({ name, apiKey, prompt, queueId ,maxMessages,companyId });
     } catch (err) {
         throw new AppError(`${JSON.stringify(err, undefined, 2)}`);
     }
