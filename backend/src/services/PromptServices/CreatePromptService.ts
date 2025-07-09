@@ -25,7 +25,7 @@ const CreatePromptService = async (promptData: PromptData): Promise<Prompt> => {
         name: Yup.string().required("ERR_PROMPT_NAME_INVALID"),
         prompt: Yup.string().required("ERR_PROMPT_INTELLIGENCE_INVALID"),
         apiKey: Yup.string().required("ERR_PROMPT_APIKEY_INVALID"),
-        queueId: Yup.number().required("ERR_PROMPT_QUEUEID_INVALID"),
+        queueId: Yup.number(),
         maxMessages: Yup.number().required("ERR_PROMPT_MAX_MESSAGES_INVALID"),
         companyId: Yup.number().required("ERR_PROMPT_companyId_INVALID")
     });
