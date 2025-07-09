@@ -21,24 +21,21 @@ interface PromptData {
 const CreatePromptService = async (promptData: PromptData): Promise<Prompt> => {
     let { name, apiKey, prompt, queueId,maxMessages,companyId } = promptData;
 
-    if(!queueId)
-        queueId = 0;
-
     const promptSchema = Yup.object().shape({
         name: Yup.string().required("ERR_PROMPT_NAME_INVALID"),
         prompt: Yup.string().required("ERR_PROMPT_INTELLIGENCE_INVALID"),
         apiKey: Yup.string().required("ERR_PROMPT_APIKEY_INVALID"),
-        queueId: Yup.number(),
         maxMessages: Yup.number().required("ERR_PROMPT_MAX_MESSAGES_INVALID"),
         companyId: Yup.number().required("ERR_PROMPT_companyId_INVALID")
     });
 
     try {
-        await promptSchema.validate({ name, apiKey, prompt, queueId ,maxMessages,companyId });
+        await promptSchema.validate({ name, apiKey, prompt ,maxMessages,companyId });
     } catch (err) {
         throw new AppError(`${JSON.stringify(err, undefined, 2)}`);
     }
-
+    if(!promptData.queueId)
+        promptData.queueId = null;
     let promptTable = await Prompt.create(promptData);
     promptTable = await ShowPromptService({ promptId: promptTable.id, companyId });
 
