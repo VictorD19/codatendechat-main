@@ -63,7 +63,7 @@ const PromptSchema = Yup.object().shape({
     maxTokens: Yup.number().required(i18n.t("promptModal.formErrors.maxTokens.required")),
     temperature: Yup.number().required(i18n.t("promptModal.formErrors.temperature.required")),
     apiKey: Yup.string().required(i18n.t("promptModal.formErrors.apikey.required")),
-    queueId: Yup.number().required(i18n.t("promptModal.formErrors.queueId.required")),
+    queueId: Yup.number(),
     maxMessages: Yup.number().required(i18n.t("promptModal.formErrors.maxMessages.required"))
 });
 
