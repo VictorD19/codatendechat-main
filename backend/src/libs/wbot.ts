@@ -249,7 +249,6 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
 
         wsocket.ev.process(async (update) => {
           const obj = {};
-          console.log("paansado pro aqui",update)
           for (const key of Object.keys(update)) {
             const value = update[key];
             if (Array.isArray(value)) {
