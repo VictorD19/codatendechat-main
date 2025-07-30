@@ -40,27 +40,25 @@ export function set(
   option?: string,
   optionValue?: string | number
 ) {
-  const setPromisefy = util.promisify(redis.set).bind(redis);
   if (option !== undefined && optionValue !== undefined) {
-    return setPromisefy(key, value, option, optionValue);
+    const options: any = {};
+    options[option] = optionValue;
+    return redis.set(key, value, options);
   }
 
-  return setPromisefy(key, value);
+  return redis.set(key, value);
 }
 
 export function get(key: string) {
-  const getPromisefy = util.promisify(redis.get).bind(redis);
-  return getPromisefy(key);
+  return redis.get(key);
 }
 
 export function getKeys(pattern: string) {
-  const getKeysPromisefy = util.promisify(redis.keys).bind(redis);
-  return getKeysPromisefy(pattern);
+  return redis.keys(pattern);
 }
 
 export function del(key: string) {
-  const delPromisefy = util.promisify(redis.del).bind(redis);
-  return delPromisefy(key);
+  return redis.del(key);
 }
 
 export async function delFromPattern(pattern: string) {
