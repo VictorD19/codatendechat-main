@@ -1,6 +1,6 @@
 import path, { join } from "path";
-import { promisify } from "util";
-import { readFile, writeFile } from "fs";
+
+import fs from "fs";
 import * as Sentry from "@sentry/node";
 import { isNil, isNull, head } from "lodash";
 import { extension as mimeExtension } from "mime-types";
@@ -60,7 +60,6 @@ import ShowQueueIntegrationService from "../QueueIntegrationServices/ShowQueueIn
 
 const request = require("request");
 
-const fs = require("fs");
 
 type Session = WASocket & {
   id?: number;
@@ -89,7 +88,7 @@ interface IMessage {
 
 export const isNumeric = (value: string) => /^-?\d+$/.test(value);
 
-const writeFileAsync = promisify(writeFile);
+const writeFileAsync = fs.promises.writeFile;
 
 const getTypeMessage = (msg: proto.IWebMessageInfo): string => {
   return getContentType(msg.message);
@@ -849,9 +848,7 @@ const verifyMediaMessage = async (
   const io = getIO();
   const quotedMsg = await verifyQuotedMessage(msg);
   const media = await downloadMedia(msg);
-console.log("aaaaaaaaaaaaaaaaaaaaaa------------------------------------------------------------")
 
-  console.log(media.data,"DATA")
   if (!media) {
     throw new Error("ERR_WAPP_DOWNLOAD_MEDIA");
   }
