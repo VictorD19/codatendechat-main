@@ -63,7 +63,7 @@ const PromptSchema = Yup.object().shape({
     maxTokens: Yup.number().required(i18n.t("promptModal.formErrors.maxTokens.required")),
     temperature: Yup.number().required(i18n.t("promptModal.formErrors.temperature.required")),
     apiKey: Yup.string().required(i18n.t("promptModal.formErrors.apikey.required")),
-    queueId: Yup.number().required(i18n.t("promptModal.formErrors.queueId.required")),
+    queueId: Yup.number(),
     maxMessages: Yup.number().required(i18n.t("promptModal.formErrors.maxMessages.required"))
 });
 
@@ -83,7 +83,7 @@ const PromptModal = ({ open, onClose, promptId, refreshPrompts }) => {
         maxTokens: 100,
         temperature: 1,
         apiKey: "",
-        queueId: '',
+        queueId: 0,
         maxMessages: 10
     };
 
@@ -96,7 +96,11 @@ const PromptModal = ({ open, onClose, promptId, refreshPrompts }) => {
                 return;
             }
             try {
+                debugger;
                 const { data } = await api.get(`/prompt/${promptId}`);
+                if(!data.queueId)
+                    data.queueId = 0;
+                
                 setPrompt(prevState => {
                     return { ...prevState, ...data };
                 });
@@ -122,11 +126,7 @@ const PromptModal = ({ open, onClose, promptId, refreshPrompts }) => {
 
     const handleSavePrompt = async values => {
         const promptData = { ...values, model: selectedModel };
-        console.log(promptData);
-        if (!values.queueId) {
-            toastError(i18n.t("promptModal.setor"));
-            return;
-        }
+        console.log(promptData,"ENVIANDO...");
         try {
             if (promptId) {
                 await api.put(`/prompt/${promptId}`, promptData);

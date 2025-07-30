@@ -849,7 +849,9 @@ const verifyMediaMessage = async (
   const io = getIO();
   const quotedMsg = await verifyQuotedMessage(msg);
   const media = await downloadMedia(msg);
+console.log("aaaaaaaaaaaaaaaaaaaaaa------------------------------------------------------------")
 
+  console.log(media.data,"DATA")
   if (!media) {
     throw new Error("ERR_WAPP_DOWNLOAD_MEDIA");
   }
