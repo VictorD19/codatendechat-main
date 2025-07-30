@@ -5,12 +5,10 @@ import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore,
-  makeInMemoryStore,
   isJidBroadcast,
   CacheStore
 } from "@whiskeysockets/baileys";
 import P from "pino";
-import makeWALegacySocket from "@whiskeysockets/baileys";
 import Whatsapp from "../models/Whatsapp";
 import { logger } from "../utils/logger";
 import MAIN_LOGGER from "@whiskeysockets/baileys/lib/Utils/logger";
@@ -86,10 +84,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
         let retriesQrCode = 0;
 
         let wsocket: Session = null;
-        const store = makeInMemoryStore({
-          logger: loggerBaileys
 
-        });
         const { state, saveState } = await authState(whatsapp);
 
 
@@ -252,11 +247,26 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
         );
         wsocket.ev.on("creds.update", saveState);
 
-        store.bind(wsocket.ev);
+        wsocket.ev.process(async (update) => {
+          const obj = {};
+          console.log("paansado pro aqui",update)
+          for (const key of Object.keys(update)) {
+            const value = update[key];
+            if (Array.isArray(value)) {
+              for (const contact of value) {
+                if (contact && contact.id) {
+                  obj[contact.id] = obj[contact.id] || {};
+                  Object.assign(obj[contact.id], contact);
+                }
+              }
+            }
+          }
+        })
+
       })();
     } catch (error) {
       Sentry.captureException(error);
-      console.log("Erro de conexao",error);
+      console.log("Erro de conexao", error);
       reject(error);
     }
   });
